@@ -30,6 +30,7 @@
             android:name="it.egesuato.trainalarm.ListviewItemRowActivity"
             android:label="@string/title_activity_listview_item_row" >
         </activity>
+        
+		<service android:enabled="true" android:name="it.egesuato.trainalarm.AlarmService" />
     </application>
-
 </manifest>

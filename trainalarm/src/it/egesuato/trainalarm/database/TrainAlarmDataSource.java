@@ -54,7 +54,7 @@ public class TrainAlarmDataSource {
 		return newTrainAlarm;
 	}
 
-	public void deleteComment(TrainAlarm trainAlarm) {
+	public void deleteTrainAlarm(TrainAlarm trainAlarm) {
 		long id = trainAlarm.getId();
 		System.out.println("Train alarm deleted with id: " + id);
 		database.delete(MySQLiteHelper.TABLE_NAME, MySQLiteHelper.COLUMN_ID

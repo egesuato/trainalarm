@@ -1,10 +1,10 @@
 package it.egesuato.trainalarm.model;
 
+import it.egesuato.trainalarm.R;
+
 import java.util.List;
 
-import it.egesuato.trainalarm.R;
 import android.content.Context;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -34,13 +34,13 @@ public class TrainAlarmListAdapter extends ArrayAdapter<TrainAlarm> {
         }
         TrainAlarm o = alarms.get(position);
         if (o != null) {
-                TextView tt = (TextView) v.findViewById(R.id.txtTitle);
-                TextView bt = (TextView) v.findViewById(R.id.txtDescription);
-                if (tt != null) {
-                      tt.setText("Alarm at " + o.getStartAlarmAt() +" for train " + String.valueOf(o.getTrainNumber()));                            }
-                if(bt != null){
-                      bt.setText(o.getDescription());
-                }
+            TextView tt = (TextView) v.findViewById(R.id.txtTitle);
+            TextView bt = (TextView) v.findViewById(R.id.txtDescription);
+            if (tt != null) {
+                  tt.setText("Alarm at " + o.getStartAlarmAt() +" for train " + String.valueOf(o.getTrainNumber()));                            }
+            if(bt != null){
+                  bt.setText(o.getDescription());
+            }
         }
         return v;
 	}

@@ -61,13 +61,23 @@ public class TrainAlarmActivity extends Activity {
 	    	}finally{
 	    		dataSource.close();
 	    	}
+	    	startAlarm(trainAlarm);
 	    	finish();
     	}
+    	
+    	
     }
     
     private void startAlarm(TrainAlarm alarm){
     	
-        Intent updateIntent = new Intent(String.valueOf(alarm.getTrainNumber()));/*
+    	//AlarmService.requestUpdate(alarm);
+    	
+    	startService(new Intent(getApplicationContext(), AlarmService.class));
+    	
+    	
+        //Intent updateIntent = new Intent(String.valueOf(alarm.getTrainNumber()));
+        
+        /*
         updateIntent.setClass(this, UpdateService.class);
 
         PendingIntent pendingIntent = PendingIntent.getService(this, 0, updateIntent, 0);
