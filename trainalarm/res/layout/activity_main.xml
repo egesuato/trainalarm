@@ -21,7 +21,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:onClick="goToInsertActivity"
-            android:text="@string/add_delete" />
+            android:text="@string/add" />
 
         <TextView
             android:id="@+id/txtTitle"

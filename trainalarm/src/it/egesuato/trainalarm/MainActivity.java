@@ -13,6 +13,7 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ListView;
 /**
@@ -52,24 +53,18 @@ public class MainActivity extends Activity {
     	
     	final ListView listView = (ListView) findViewById(R.id.listAlarms);
     	listView.setAdapter(adapter);
-    	listView.setOnItemSelectedListener(new OnItemSelectedListener() {
+    	listView.setOnItemClickListener(new OnItemClickListener() {
+
 
 			@Override
-			public void onItemSelected(AdapterView<?> arg0, View arg1,
-					int position, long id) {
-				
+			public void onItemClick(AdapterView<?> arg0, View arg1, int position,
+					long arg3) {
 				TrainAlarm alarm = (TrainAlarm) listView.getItemAtPosition(position);
 				
 		    	Intent intent = new Intent(MainActivity.this, TrainAlarmActivity.class);
 		    	intent.putExtra(TrainAlarmActivity.MODE, TrainAlarmActivity.EDIT_MODE);
 		    	intent.putExtra("id", alarm.getId());
 		    	startActivity(intent);
-		    	
-			}
-
-			@Override
-			public void onNothingSelected(AdapterView<?> arg0) {
-				
 			}
 		});
     	

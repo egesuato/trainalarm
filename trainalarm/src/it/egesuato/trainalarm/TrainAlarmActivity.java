@@ -7,10 +7,12 @@ import java.text.SimpleDateFormat;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.opengl.Visibility;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TimePicker;
 
@@ -31,26 +33,35 @@ public class TrainAlarmActivity extends Activity {
 		setContentView(R.layout.activity_train_alarm);
 		
 		mode = getIntent().getStringExtra(TrainAlarmActivity.MODE);
+		Button btnDelete = (Button) findViewById(R.id.delete);
 		
 		if (mode.equals(EDIT_MODE)){
 	    	EditText txtTrainNumber = (EditText) findViewById(R.id.trainNumber);
 	    	EditText txtTrainDescription = (EditText) findViewById(R.id.trainDescription);
 	    	TimePicker timeStartAlarm = (TimePicker) findViewById(R.id.startAlarmAt);
-	    	
+			btnDelete.setVisibility(View.VISIBLE);
+			
 	    	long id = getIntent().getLongExtra("id", -1);
-	    	TrainAlarmDataSource dataSource = new TrainAlarmDataSource(getApplicationContext());
-	    	TrainAlarm alarmById = dataSource.getAlarmById(id);
-	    	
+	    	TrainAlarmDataSource ds = new TrainAlarmDataSource(getApplicationContext());
+	    	ds.open();
+	    	TrainAlarm alarmById = null;
+	    	try{
+	    		alarmById = ds.getAlarmById(id);
+	    	}finally{
+	    		ds.close();
+	    	}
 	    	if (alarmById != null){
-		    	txtTrainNumber.setText(alarmById.getTrainNumber());
+		    	txtTrainNumber.setText(String.valueOf(alarmById.getTrainNumber()));
 		    	txtTrainDescription.setText(alarmById.getDescription());
 		    	
 		    	stringAsTime(alarmById, timeStartAlarm);
 		    	
-		    	
 	    	} else{
 	    		Log.e(TAG, "Error, no alarm found for id " + id);
 	    	}
+		} else {
+			btnDelete.setVisibility(View.INVISIBLE);
+			
 		}
 		
 	}
@@ -79,18 +90,30 @@ public class TrainAlarmActivity extends Activity {
     		trainAlarm.setId(id);
 	    }
     	
-    	TrainAlarmDataSource dataSource = new TrainAlarmDataSource(getApplicationContext());
-    	dataSource.open();
+    	TrainAlarmDataSource ds = new TrainAlarmDataSource(getApplicationContext());
+    	ds.open();
     	try{
-    		dataSource.createOrUpdateAlarm(trainAlarm);
+    		ds.createOrUpdateAlarm(trainAlarm);
     	}finally{
-    		dataSource.close();
+    		ds.close();
     	}
     	
     	finish();
     }
     
-    
+    public void deleteAlarm(View view){
+    	long id = getIntent().getLongExtra("id", -1);
+    	TrainAlarmDataSource dataSource = new TrainAlarmDataSource(getApplicationContext());
+    	dataSource.open();
+    	try{
+   
+    		dataSource.deleteById(id);
+    	}finally{
+    		dataSource.close();
+    	}
+    	finish();
+    	
+    }
 	private void stringAsTime(TrainAlarm alarmById, TimePicker timeStartAlarm) {
 		String startAlarmAt = alarmById.getStartAlarmAt();
 		
