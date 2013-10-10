@@ -8,6 +8,7 @@ import java.text.SimpleDateFormat;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.widget.EditText;
@@ -15,11 +16,11 @@ import android.widget.TimePicker;
 
 public class TrainAlarmActivity extends Activity {
 
+	private static final String TAG = TrainAlarmActivity.class.getName();
 	public static String EDIT_MODE = "EDIT_MODE";
 	public static String NEW_MODE = "NEW_MODE";
 	
 	public static String MODE = "MODE";
-	public static SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
 	
 	
 	private String mode;
@@ -31,7 +32,30 @@ public class TrainAlarmActivity extends Activity {
 		
 		mode = getIntent().getStringExtra(TrainAlarmActivity.MODE);
 		
+		if (mode.equals(EDIT_MODE)){
+	    	EditText txtTrainNumber = (EditText) findViewById(R.id.trainNumber);
+	    	EditText txtTrainDescription = (EditText) findViewById(R.id.trainDescription);
+	    	TimePicker timeStartAlarm = (TimePicker) findViewById(R.id.startAlarmAt);
+	    	
+	    	long id = getIntent().getLongExtra("id", -1);
+	    	TrainAlarmDataSource dataSource = new TrainAlarmDataSource(getApplicationContext());
+	    	TrainAlarm alarmById = dataSource.getAlarmById(id);
+	    	
+	    	if (alarmById != null){
+		    	txtTrainNumber.setText(alarmById.getTrainNumber());
+		    	txtTrainDescription.setText(alarmById.getDescription());
+		    	
+		    	stringAsTime(alarmById, timeStartAlarm);
+		    	
+		    	
+	    	} else{
+	    		Log.e(TAG, "Error, no alarm found for id " + id);
+	    	}
+		}
+		
 	}
+
+
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
@@ -44,36 +68,47 @@ public class TrainAlarmActivity extends Activity {
     	EditText txtTrainDescription = (EditText) findViewById(R.id.trainDescription);
     	TimePicker timeStartAlarm = (TimePicker) findViewById(R.id.startAlarmAt);
 
-    	if (mode.equals(NEW_MODE)){
-	    	 
-	    	TrainAlarm trainAlarm = new TrainAlarm();
-	    	trainAlarm.setDescription(txtTrainDescription.getText().toString());
-	    	trainAlarm.setTrainNumber(Integer.parseInt(txtTrainNumber.getText().toString()));
-	    	
-	    	trainAlarm.setStartAlarmAt(timeAsString(timeStartAlarm));
-	    	
-	    	TrainAlarmDataSource dataSource = new TrainAlarmDataSource(getApplicationContext());
-	    	dataSource.open();
-	    	try{
-	    		dataSource.createAlarm(trainAlarm);
-	    	}finally{
-	    		dataSource.close();
-	    	}
-	    	startAlarm(trainAlarm);
-	    	finish();
+    	TrainAlarm trainAlarm = new TrainAlarm();
+    	trainAlarm.setDescription(txtTrainDescription.getText().toString());
+    	trainAlarm.setTrainNumber(Integer.parseInt(txtTrainNumber.getText().toString()));
+    	trainAlarm.setStartAlarmAt(timeAsString(timeStartAlarm));
+    	trainAlarm.setId(-1);
+    	
+    	if (mode.equals(EDIT_MODE)){
+    		long id = getIntent().getLongExtra("id", -1);
+    		trainAlarm.setId(id);
+	    }
+    	
+    	TrainAlarmDataSource dataSource = new TrainAlarmDataSource(getApplicationContext());
+    	dataSource.open();
+    	try{
+    		dataSource.createOrUpdateAlarm(trainAlarm);
+    	}finally{
+    		dataSource.close();
     	}
     	
-    	
+    	finish();
     }
     
-    private void startAlarm(TrainAlarm alarm){
-    	
-    	Intent intent = new Intent(this, AlarmService.class);
-    	
-    	startService(intent);
-    	
-    }
     
+	private void stringAsTime(TrainAlarm alarmById, TimePicker timeStartAlarm) {
+		String startAlarmAt = alarmById.getStartAlarmAt();
+		
+		String[] split = startAlarmAt.split(":");
+		String hh = split[0];
+		if (hh.length() == 2 && hh.startsWith("0")){
+			hh = hh.substring(1);
+		}
+		String mm = split[1];
+		if (mm.length() == 2 && mm.startsWith("0")){
+			mm = mm.substring(1);
+		}
+		
+		timeStartAlarm.setCurrentHour(Integer.parseInt(hh));
+		timeStartAlarm.setCurrentMinute(Integer.parseInt(mm));
+		
+	}
+	
     private String timeAsString(TimePicker timePicker){
     	String currentHour = String.valueOf(timePicker.getCurrentHour());
     	String currentMinute = String.valueOf(timePicker.getCurrentMinute());

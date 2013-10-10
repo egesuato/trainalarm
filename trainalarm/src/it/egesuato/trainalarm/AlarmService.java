@@ -35,8 +35,10 @@ public class AlarmService extends IntentService {
 	}
 
 
-	// Will be called asynchronously be Android
+	// Will be called asynchronously by Android
 	protected void onHandleIntent(Intent intent) {
+		Log.d(TAG, "Starting alarm service");
+		
 		TrainAlarmDataSource ds = new TrainAlarmDataSource(
 				getApplicationContext());
 
@@ -44,6 +46,7 @@ public class AlarmService extends IntentService {
 		List<TrainAlarm> allAlarms = new ArrayList<TrainAlarm>();
 		try {
 			allAlarms = ds.getAllAlarms();
+			Log.d(TAG, String.format("Found %d trains to check", allAlarms.size()));
 		} finally {
 			ds.close();
 		}
@@ -87,13 +90,12 @@ public class AlarmService extends IntentService {
 	private void notifyUser(List<String> results) {
 		
 		// The stack builder object will contain an artificial back stack for
-		// the
-		// started Activity.
+		// the started Activity.
 		// This ensures that navigating backward from the Activity leads out of
 		// your application to the Home screen.
 		TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
 		// Adds the back stack for the Intent (but not the Intent itself)
-		stackBuilder.addParentStack(TrainAlarmActivity.class);
+		stackBuilder.addParentStack(MainActivity.class);
 		// Adds the Intent that starts the Activity to the top of the stack
 		// Creates an explicit intent for an Activity in your app
 		Intent resultIntent = new Intent(this, TrainAlarmActivity.class);
@@ -111,7 +113,7 @@ public class AlarmService extends IntentService {
 				.setContentText("Hello World!");
 
 		mBuilder.setContentIntent(resultPendingIntent);
-		// mId allows you to update the notification later on.
+		// ID_NOTIFICATION allows you to update the notification later on.
 		mNotificationManager.notify(ID_NOTIFICATION, mBuilder.build());
 	}
 

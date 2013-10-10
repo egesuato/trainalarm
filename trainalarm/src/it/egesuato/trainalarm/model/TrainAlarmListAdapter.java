@@ -5,28 +5,32 @@ import it.egesuato.trainalarm.R;
 import java.util.List;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
-
+/**
+ * Adapt the list of TrainAlarm to a custom list view.
+ * 
+ * @author emanuele
+ *
+ */
 public class TrainAlarmListAdapter extends ArrayAdapter<TrainAlarm> {
-
-	private int layoutResourceId;
 
 	private List<TrainAlarm> alarms;
 
-	private static final String LOG_TAG = "TrainAlarmListAdapter";
+	private static final String LOG_TAG = TrainAlarmListAdapter.class.getName();// "TrainAlarmListAdapter";
 
 	public TrainAlarmListAdapter(Context context, int textViewResourceId, List<TrainAlarm> alarms) {
 		super(context, textViewResourceId, alarms);
-		layoutResourceId = textViewResourceId;
 		this.alarms = alarms;
 	}
 
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {
+		Log.d(LOG_TAG, "Creating row for position " + position);
         View v = convertView;
         if (v == null) {
             LayoutInflater vi = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);

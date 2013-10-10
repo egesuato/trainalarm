@@ -16,10 +16,12 @@ public class TrainAlarmDataSource {
 	// Database fields
 	private SQLiteDatabase database;
 	private MySQLiteHelper dbHelper;
-	private String[] allColumns = { MySQLiteHelper.COLUMN_ID,
+	private String[] allColumns = { 
+			MySQLiteHelper.COLUMN_ID,
 			MySQLiteHelper.COLUMN_TRAIN_NUMBER,
 			MySQLiteHelper.COLUMN_TRAIN_DESCRIPTION,
-			MySQLiteHelper.COLUMN_TRAIN_START_ALARM_AT };
+			MySQLiteHelper.COLUMN_TRAIN_START_ALARM_AT 
+	};
 
 	public TrainAlarmDataSource(Context context) {
 		dbHelper = new MySQLiteHelper(context);
@@ -33,7 +35,7 @@ public class TrainAlarmDataSource {
 		dbHelper.close();
 	}
 
-	public TrainAlarm createAlarm(TrainAlarm trainAlarm) {
+	public TrainAlarm createOrUpdateAlarm(TrainAlarm trainAlarm) {
 		ContentValues values = new ContentValues();
 		values.put(MySQLiteHelper.COLUMN_TRAIN_NUMBER,
 				trainAlarm.getTrainNumber());
@@ -41,12 +43,21 @@ public class TrainAlarmDataSource {
 				trainAlarm.getDescription());
 		values.put(MySQLiteHelper.COLUMN_TRAIN_START_ALARM_AT,
 				trainAlarm.getStartAlarmAt());
-
-		long insertId = database
+		
+		long newOrUpdatedId;
+		
+		if (trainAlarm.getId() == -1){
+			newOrUpdatedId = database
 				.insert(MySQLiteHelper.TABLE_NAME, null, values);
-
+			
+		} else {
+			values.put(MySQLiteHelper.COLUMN_ID, trainAlarm.getId());
+			
+			newOrUpdatedId = database
+					.update(MySQLiteHelper.TABLE_NAME, values,  MySQLiteHelper.COLUMN_ID + " = " +trainAlarm.getId(), null);
+		}
 		Cursor cursor = database.query(MySQLiteHelper.TABLE_NAME, allColumns,
-				MySQLiteHelper.COLUMN_ID + " = " + insertId, null, null, null,
+				MySQLiteHelper.COLUMN_ID + " = " + newOrUpdatedId, null, null, null,
 				null);
 		cursor.moveToFirst();
 		TrainAlarm newTrainAlarm = cursorToTrainAlarm(cursor);
@@ -64,8 +75,14 @@ public class TrainAlarmDataSource {
 	public List<TrainAlarm> getAllAlarms() {
 		List<TrainAlarm> alarms = new ArrayList<TrainAlarm>();
 
-		Cursor cursor = database.query(MySQLiteHelper.TABLE_NAME, allColumns,
-				null, null, null, null, null);
+		Cursor cursor = database.query(
+				MySQLiteHelper.TABLE_NAME, 
+				allColumns,
+				null, 
+				null, 
+				null,
+				null, 
+				null);
 
 		cursor.moveToFirst();
 		while (!cursor.isAfterLast()) {
@@ -86,5 +103,25 @@ public class TrainAlarmDataSource {
 		trainAlarm.setStartAlarmAt(cursor.getString(3));
 
 		return trainAlarm;
+	}
+
+	public TrainAlarm getAlarmById(long id) {
+		TrainAlarm alarm = null;
+		
+		Cursor cursor = database.query(
+				MySQLiteHelper.TABLE_NAME, 
+				allColumns,
+				String.format("%s = %d", MySQLiteHelper.COLUMN_ID, id), 
+				null, 
+				null, 
+				null, 
+				null);
+
+		if (!cursor.moveToFirst()){
+			alarm = cursorToTrainAlarm(cursor);
+		}
+		cursor.close();
+		return alarm;
+		
 	}
 }

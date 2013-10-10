@@ -12,8 +12,15 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ListView;
-
+/**
+ * Main activity. Used to display all alarms saved.
+ * 
+ * @author emanuele
+ *
+ */
 public class MainActivity extends Activity {
 
     @Override
@@ -21,9 +28,15 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         
+    	Intent intent = new Intent(this, AlarmService.class);
+    	
+    	startService(intent);
+    	
         refresh();
         
     }
+    
+    
 
     public void refresh(){
     	TrainAlarmDataSource ds = new TrainAlarmDataSource(getApplicationContext());
@@ -37,8 +50,29 @@ public class MainActivity extends Activity {
     	}
     	TrainAlarmListAdapter adapter = new TrainAlarmListAdapter(getApplicationContext(), R.layout.listview_item_row, allAlarms);
     	
-    	ListView listView = (ListView) findViewById(R.id.listAlarms);
+    	final ListView listView = (ListView) findViewById(R.id.listAlarms);
     	listView.setAdapter(adapter);
+    	listView.setOnItemSelectedListener(new OnItemSelectedListener() {
+
+			@Override
+			public void onItemSelected(AdapterView<?> arg0, View arg1,
+					int position, long id) {
+				
+				TrainAlarm alarm = (TrainAlarm) listView.getItemAtPosition(position);
+				
+		    	Intent intent = new Intent(MainActivity.this, TrainAlarmActivity.class);
+		    	intent.putExtra(TrainAlarmActivity.MODE, TrainAlarmActivity.EDIT_MODE);
+		    	intent.putExtra("id", alarm.getId());
+		    	startActivity(intent);
+		    	
+			}
+
+			@Override
+			public void onNothingSelected(AdapterView<?> arg0) {
+				
+			}
+		});
+    	
     	
     }
     

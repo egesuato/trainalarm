@@ -1,9 +1,15 @@
 package it.egesuato.trainalarm;
 
+import it.egesuato.trainalarm.model.TrainAlarmListAdapter;
 import android.os.Bundle;
 import android.app.Activity;
 import android.view.Menu;
-
+/**
+ * This activity represents a single row used by {@link TrainAlarmListAdapter}.
+ * 
+ * @author emanuele
+ *
+ */
 public class ListviewItemRowActivity extends Activity {
 
 	@Override
