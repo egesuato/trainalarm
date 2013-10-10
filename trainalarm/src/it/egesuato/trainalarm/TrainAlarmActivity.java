@@ -1,37 +1,35 @@
 package it.egesuato.trainalarm;
 
-import java.text.SimpleDateFormat;
-
 import it.egesuato.trainalarm.database.TrainAlarmDataSource;
 import it.egesuato.trainalarm.model.TrainAlarm;
-import android.os.Bundle;
+
+import java.text.SimpleDateFormat;
+
 import android.app.Activity;
-import android.app.AlarmManager;
-import android.app.PendingIntent;
-import android.content.Context;
 import android.content.Intent;
+import android.os.Bundle;
 import android.view.Menu;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.TimePicker;
 
 public class TrainAlarmActivity extends Activity {
-	private String mode;
-	
-	public static String MODE = "MODE";
-	
-	public static SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
-	
+
 	public static String EDIT_MODE = "EDIT_MODE";
 	public static String NEW_MODE = "NEW_MODE";
+	
+	public static String MODE = "MODE";
+	public static SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
+	
+	
+	private String mode;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_train_alarm);
 		
-		Intent intent = getIntent();
-		mode = intent.getStringExtra(TrainAlarmActivity.MODE);
+		mode = getIntent().getStringExtra(TrainAlarmActivity.MODE);
 		
 	}
 
@@ -70,22 +68,10 @@ public class TrainAlarmActivity extends Activity {
     
     private void startAlarm(TrainAlarm alarm){
     	
-    	//AlarmService.requestUpdate(alarm);
+    	Intent intent = new Intent(this, AlarmService.class);
     	
-    	startService(new Intent(getApplicationContext(), AlarmService.class));
+    	startService(intent);
     	
-    	
-        //Intent updateIntent = new Intent(String.valueOf(alarm.getTrainNumber()));
-        
-        /*
-        updateIntent.setClass(this, UpdateService.class);
-
-        PendingIntent pendingIntent = PendingIntent.getService(this, 0, updateIntent, 0);
-
-        // Schedule alarm, and force the device awake for this update
-        AlarmManager alarmManager = (AlarmManager)getSystemService(Context.ALARM_SERVICE);
-        alarmManager.set(AlarmManager.RTC_WAKEUP, nextUpdate, pendingIntent);*/
-        
     }
     
     private String timeAsString(TimePicker timePicker){

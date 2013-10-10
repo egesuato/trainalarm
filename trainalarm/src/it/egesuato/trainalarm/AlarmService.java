@@ -7,52 +7,36 @@ import java.sql.Time;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
-
 import android.app.AlarmManager;
+import android.app.IntentService;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
-import android.app.Service;
 import android.app.TaskStackBuilder;
 import android.content.Context;
 import android.content.Intent;
-import android.os.IBinder;
-
-public class AlarmService extends Service implements Runnable {
+import android.util.Log;
+/**
+ * This is a single-worker-thread used to check trains in background mode.
+ */
+public class AlarmService extends IntentService {
 
 	private static final int ID_NOTIFICATION = 234240;
-	private static Object sLock = new Object();
-	private static boolean sThreadRunning = false;
-
-	@Override
-	public IBinder onBind(Intent intent) {
-		return null;
+	private final static long TO_STOP_AFTER_MS = 10000;
+	public static final String TAG = TrainChecker.class.getSimpleName();
+	private TrainChecker checker = new TrainChecker();
+	
+	public AlarmService() {
+		super("train alarm service");
 	}
 
-	@Override
-	public void onCreate() {
-		super.onCreate();
 
-		// Only start processing thread if not already running
-		synchronized (sLock) {
-			if (!sThreadRunning) {
-				sThreadRunning = true;
-				new Thread(this).start();
-			}
-		}
-	}
-
-	@Override
-	public void onDestroy() {
-		// TODO Auto-generated method stub
-		super.onDestroy();
-	}
-
-	@Override
-	public void run() {
+	// Will be called asynchronously be Android
+	protected void onHandleIntent(Intent intent) {
 		TrainAlarmDataSource ds = new TrainAlarmDataSource(
 				getApplicationContext());
 
@@ -63,47 +47,45 @@ public class AlarmService extends Service implements Runnable {
 		} finally {
 			ds.close();
 		}
-
+		List<String> results = new ArrayList<String>();
+		
 		for (TrainAlarm alarm : allAlarms) {
-			String hhmmss = alarm.getStartAlarmAt();
+			String startingAlarm = alarm.getStartAlarmAt();
 			SimpleDateFormat sdf = new SimpleDateFormat("HH:mm");
 			try {
-				Date date = sdf.parse(hhmmss);
+				Date date = sdf.parse(startingAlarm);
 				Time time = new Time(date.getTime());
-
-				if (System.currentTimeMillis() > time.getTime()) {
+				
+				if (System.currentTimeMillis() >= time.getTime() && 
+						time.getTime() + TO_STOP_AFTER_MS >= System.currentTimeMillis() ) {
 					String check = check(alarm);
-
+					results.add(check);
 				}
 
 			} catch (ParseException e) {
-				e.printStackTrace();
+				Log.e(TAG, e.getMessage());
 			}
 		}
+		
+		notifyUser(results);
+		
+		if (!results.isEmpty()){
+			Calendar cal = Calendar.getInstance();
 
-		Intent updateIntent = new Intent();
-		updateIntent.setClass(this, AlarmService.class);
+			Intent newIntent = new Intent(this, AlarmService.class);
+			PendingIntent pintent = PendingIntent.getService(this, 0, newIntent, 0);
 
-		PendingIntent pendingIntent = PendingIntent.getService(this, 0,
-				updateIntent, 0);
+			AlarmManager alarm = (AlarmManager)getSystemService(Context.ALARM_SERVICE);
+			// restarting service in 30 seconds
+			alarm.set(AlarmManager.RTC, cal.getTimeInMillis()+ 30*1000,  pintent); 
 
-		// Schedule alarm, and force the device awake for this update
-		AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
-		alarmManager.set(AlarmManager.RTC_WAKEUP, 1000, pendingIntent);
-
-		notifyUser();
+		}
+		
 
 	}
 
-	private void notifyUser() {
-		Notification.Builder mBuilder = new Notification.Builder(this)
-				//.setSmallIcon(R.drawable.app_icon)
-				.setContentTitle("My notification")
-				.setContentText("Hello World!");
-
-		// Creates an explicit intent for an Activity in your app
-		Intent resultIntent = new Intent(this, TrainAlarmActivity.class);
-
+	private void notifyUser(List<String> results) {
+		
 		// The stack builder object will contain an artificial back stack for
 		// the
 		// started Activity.
@@ -113,17 +95,28 @@ public class AlarmService extends Service implements Runnable {
 		// Adds the back stack for the Intent (but not the Intent itself)
 		stackBuilder.addParentStack(TrainAlarmActivity.class);
 		// Adds the Intent that starts the Activity to the top of the stack
+		// Creates an explicit intent for an Activity in your app
+		Intent resultIntent = new Intent(this, TrainAlarmActivity.class);
 		stackBuilder.addNextIntent(resultIntent);
+
 		PendingIntent resultPendingIntent = stackBuilder.getPendingIntent(0,
 				PendingIntent.FLAG_UPDATE_CURRENT);
-		mBuilder.setContentIntent(resultPendingIntent);
+		
 		NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+		
+		
+		Notification.Builder mBuilder = new Notification.Builder(this)
+				.setSmallIcon(R.drawable.ic_launcher)
+				.setContentTitle("My notification")
+				.setContentText("Hello World!");
+
+		mBuilder.setContentIntent(resultPendingIntent);
 		// mId allows you to update the notification later on.
 		mNotificationManager.notify(ID_NOTIFICATION, mBuilder.build());
 	}
 
 	private String check(TrainAlarm alarm) {
-		return "";
+		return checker.checkTrainStatus(alarm.getTrainNumber());
 	}
 
 }
