@@ -9,6 +9,7 @@ import java.util.List;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.View;
@@ -29,32 +30,8 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         
-    	Intent intent = new Intent(this, AlarmService.class);
-    	
-    	startService(intent);
-    	
-        refresh();
-        
-    }
-    
-    
-
-    public void refresh(){
-    	TrainAlarmDataSource ds = new TrainAlarmDataSource(getApplicationContext());
-    	
-    	ds.open();
-    	List<TrainAlarm> allAlarms = new ArrayList<TrainAlarm>();
-    	try{
-    		allAlarms = ds.getAllAlarms();
-    	}finally{
-    		ds.close();
-    	}
-    	TrainAlarmListAdapter adapter = new TrainAlarmListAdapter(getApplicationContext(), R.layout.listview_item_row, allAlarms);
-    	
     	final ListView listView = (ListView) findViewById(R.id.listAlarms);
-    	listView.setAdapter(adapter);
     	listView.setOnItemClickListener(new OnItemClickListener() {
-
 
 			@Override
 			public void onItemClick(AdapterView<?> arg0, View arg1, int position,
@@ -69,9 +46,34 @@ public class MainActivity extends Activity {
 		});
     	
     	
+    	Intent intent = new Intent(this, AlarmService.class);
+    	
+    	startService(intent);
+    	
+        refresh();
+        
     }
     
+    
+
+    public void refresh(){
+    	// delegate refresh task to an AsyncTask
+    	new RefreshPageTask().execute();
+    }
+    
+    
+    
+    
     @Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		super.onActivityResult(requestCode, resultCode, data);
+		
+		refresh();
+	}
+
+
+
+	@Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.main, menu);
@@ -85,5 +87,35 @@ public class MainActivity extends Activity {
     	intent.putExtra(TrainAlarmActivity.MODE, TrainAlarmActivity.NEW_MODE);
     	startActivity(intent);
 
+    }
+    
+    private class RefreshPageTask extends AsyncTask<Void, Void, List<TrainAlarm>> {
+
+		@Override
+		protected List<TrainAlarm> doInBackground(Void... params) {
+
+	    	TrainAlarmDataSource ds = new TrainAlarmDataSource(getApplicationContext());
+	    	
+	    	ds.open();
+	    	List<TrainAlarm> allAlarms = new ArrayList<TrainAlarm>();
+	    	try{
+	    		allAlarms = ds.getAllAlarms();
+	    	}finally{
+	    		ds.close();
+	    	}
+	    	
+			return allAlarms;
+		}
+
+		@Override
+		protected void onPostExecute(List<TrainAlarm> allAlarms) {
+	    	TrainAlarmListAdapter adapter = new TrainAlarmListAdapter(getApplicationContext(), R.layout.listview_item_row, allAlarms);
+	    	
+	    	final ListView listView = (ListView) findViewById(R.id.listAlarms);
+	    	listView.setAdapter(adapter);
+		}
+		
+		
+    	
     }
 }

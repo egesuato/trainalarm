@@ -35,10 +35,12 @@ public class TrainAlarmActivity extends Activity {
 		mode = getIntent().getStringExtra(TrainAlarmActivity.MODE);
 		Button btnDelete = (Button) findViewById(R.id.delete);
 		
+		TimePicker timeStartAlarm = (TimePicker) findViewById(R.id.startAlarmAt);
+		timeStartAlarm.setIs24HourView(true);
+
 		if (mode.equals(EDIT_MODE)){
 	    	EditText txtTrainNumber = (EditText) findViewById(R.id.trainNumber);
 	    	EditText txtTrainDescription = (EditText) findViewById(R.id.trainDescription);
-	    	TimePicker timeStartAlarm = (TimePicker) findViewById(R.id.startAlarmAt);
 			btnDelete.setVisibility(View.VISIBLE);
 			
 	    	long id = getIntent().getLongExtra("id", -1);
@@ -54,7 +56,9 @@ public class TrainAlarmActivity extends Activity {
 		    	txtTrainNumber.setText(String.valueOf(alarmById.getTrainNumber()));
 		    	txtTrainDescription.setText(alarmById.getDescription());
 		    	
-		    	stringAsTime(alarmById, timeStartAlarm);
+		    	timeStartAlarm.setCurrentHour(alarmById.getHoursStartAlarmAt());
+		    	timeStartAlarm.setCurrentMinute(alarmById.getMinutesStartAlarmAt());
+		    	
 		    	
 	    	} else{
 	    		Log.e(TAG, "Error, no alarm found for id " + id);
@@ -82,7 +86,9 @@ public class TrainAlarmActivity extends Activity {
     	TrainAlarm trainAlarm = new TrainAlarm();
     	trainAlarm.setDescription(txtTrainDescription.getText().toString());
     	trainAlarm.setTrainNumber(Integer.parseInt(txtTrainNumber.getText().toString()));
-    	trainAlarm.setStartAlarmAt(timeAsString(timeStartAlarm));
+    	trainAlarm.setHoursStartAlarmAt(timeStartAlarm.getCurrentHour());
+    	trainAlarm.setMinutesStartAlarmAt(timeStartAlarm.getCurrentMinute());
+    	
     	trainAlarm.setId(-1);
     	
     	if (mode.equals(EDIT_MODE)){
@@ -112,39 +118,6 @@ public class TrainAlarmActivity extends Activity {
     		dataSource.close();
     	}
     	finish();
-    	
-    }
-	private void stringAsTime(TrainAlarm alarmById, TimePicker timeStartAlarm) {
-		String startAlarmAt = alarmById.getStartAlarmAt();
-		
-		String[] split = startAlarmAt.split(":");
-		String hh = split[0];
-		if (hh.length() == 2 && hh.startsWith("0")){
-			hh = hh.substring(1);
-		}
-		String mm = split[1];
-		if (mm.length() == 2 && mm.startsWith("0")){
-			mm = mm.substring(1);
-		}
-		
-		timeStartAlarm.setCurrentHour(Integer.parseInt(hh));
-		timeStartAlarm.setCurrentMinute(Integer.parseInt(mm));
-		
-	}
-	
-    private String timeAsString(TimePicker timePicker){
-    	String currentHour = String.valueOf(timePicker.getCurrentHour());
-    	String currentMinute = String.valueOf(timePicker.getCurrentMinute());
-    	
-    	if (currentHour.length() == 1){
-    		currentHour = "0" + currentHour;
-    	}
-    	
-    	if (currentMinute.length() == 1){
-    		currentMinute = "0" + currentMinute;
-    	}
-    	
-    	return currentHour + ":" + currentMinute;
     	
     }
 }

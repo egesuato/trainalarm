@@ -90,11 +90,10 @@ public class TrainChecker {
 							+ e.getMessage());
 			checkResult = ERROR_DURING_RETRIEVAL;
 		}
-		Message message = Message.obtain();
 		// the resulting html needs to be html-parsed to be fully readable
 		Spanned fromHtml = Html.fromHtml(checkResult);
 
-		return fromHtml.toString();
+		return "Train " + trainNumber + ": " + fromHtml.toString();
 	}
 
 }

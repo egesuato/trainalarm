@@ -10,7 +10,8 @@ public class MySQLiteHelper extends SQLiteOpenHelper {
   public static final String COLUMN_ID = "_id";
   public static final String COLUMN_TRAIN_NUMBER = "number";
   public static final String COLUMN_TRAIN_DESCRIPTION = "description";
-  public static final String COLUMN_TRAIN_START_ALARM_AT = "start_alarm";
+  public static final String COLUMN_TRAIN_HH_START_ALARM_AT = "hh_start_alarm";
+  public static final String COLUMN_TRAIN_MM_START_ALARM_AT = "mm_start_alarm";
 
   private static final String DATABASE_NAME = "train_alarm.db";
   private static final int DATABASE_VERSION = 1;
@@ -21,7 +22,8 @@ public class MySQLiteHelper extends SQLiteOpenHelper {
       + " integer primary key autoincrement, " + 
       	COLUMN_TRAIN_NUMBER + " integer not null, " +
       	COLUMN_TRAIN_DESCRIPTION + " text, " +
-      	COLUMN_TRAIN_START_ALARM_AT +" text );";
+      	COLUMN_TRAIN_HH_START_ALARM_AT +" integer, " +
+      	COLUMN_TRAIN_MM_START_ALARM_AT +" integer);";
 
   public MySQLiteHelper(Context context) {
     super(context, DATABASE_NAME, null, DATABASE_VERSION);

@@ -1,11 +1,15 @@
 package it.egesuato.trainalarm.model;
 
+import java.util.Date;
+
 public class TrainAlarm {
 	private long id;
 	private int trainNumber;
 	private String description;
+	
 	// in HH:MM:SS format
-	private String startAlarmAt;
+	private int hoursStartAlarmAt;
+	private int minutesStartAlarmAt;
 
 	public long getId() {
 		return id;
@@ -31,12 +35,26 @@ public class TrainAlarm {
 		this.description = description;
 	}
 
-	public String getStartAlarmAt() {
-		return startAlarmAt;
+	public int getHoursStartAlarmAt() {
+		return hoursStartAlarmAt;
 	}
 
-	public void setStartAlarmAt(String startAlarmAt) {
-		this.startAlarmAt = startAlarmAt;
+	public void setHoursStartAlarmAt(int hoursStartAlarmAt) {
+		this.hoursStartAlarmAt = hoursStartAlarmAt;
 	}
+
+	public int getMinutesStartAlarmAt() {
+		return minutesStartAlarmAt;
+	}
+
+	public void setMinutesStartAlarmAt(int minutesStartAlarmAt) {
+		this.minutesStartAlarmAt = minutesStartAlarmAt;
+	}
+	
+	public String getDisplayableHoursAndMinutes(){
+		return getHoursStartAlarmAt() + ":" + getMinutesStartAlarmAt();
+	}
+
+	
 
 }
