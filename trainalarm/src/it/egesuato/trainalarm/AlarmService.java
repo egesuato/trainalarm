@@ -3,13 +3,8 @@ package it.egesuato.trainalarm;
 import it.egesuato.trainalarm.database.TrainAlarmDataSource;
 import it.egesuato.trainalarm.model.TrainAlarm;
 
-import java.sql.Time;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
-import java.util.GregorianCalendar;
 import java.util.List;
 
 import android.app.AlarmManager;
@@ -17,10 +12,10 @@ import android.app.IntentService;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
-import android.app.TaskStackBuilder;
 import android.content.Context;
 import android.content.Intent;
-import android.provider.AlarmClock;
+import android.media.RingtoneManager;
+import android.net.Uri;
 import android.util.Log;
 /**
  * This is a single-worker-thread used to check trains in background mode.
@@ -78,29 +73,24 @@ public class AlarmService extends IntentService {
 	}
 
 	private void notifyUser(List<String> results) {
-
-		NotificationMessage message = new NotificationMessage(results);
-		
-		Notification.Builder mBuilder = new Notification.Builder(this)
-				.setSmallIcon(R.drawable.ic_launcher)
-				.setContentTitle(message.getTitle())
-				.setContentText(message.getDetail());
-		
-		
-		NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-		
-		mNotificationManager.notify(ID_NOTIFICATION, mBuilder.build());
-		
-		Calendar cal = new GregorianCalendar();
-		AlarmManager alarm = (AlarmManager)getSystemService(Context.ALARM_SERVICE);
-		Intent i = new Intent(AlarmClock.ACTION_SET_ALARM);
-		i.putExtra(AlarmClock.EXTRA_HOUR, cal.get(Calendar.HOUR_OF_DAY));
-		i.putExtra(AlarmClock.EXTRA_MINUTES, cal.get(Calendar.MINUTE));
-		startActivity(i);
-		
-		Intent intent = new Intent(this, MainActivity.class);
-		alarm.set(AlarmManager.ELAPSED_REALTIME, Calendar.getInstance().getTimeInMillis(), 
-				PendingIntent.getActivity(getApplicationContext(), 0, intent, 0)); 
+		for (String result : results){
+			NotificationMessage message = new NotificationMessage(result);
+			
+			//Define sound URI
+			Uri soundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+	
+			
+			Notification.Builder mBuilder = new Notification.Builder(this)
+					.setSmallIcon(R.drawable.ic_launcher)
+					.setContentTitle(message.getTitle())
+					.setContentText(message.getDetail())
+					.setSound(soundUri);
+			
+			
+			NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+			
+			mNotificationManager.notify(ID_NOTIFICATION, mBuilder.getNotification());
+		}
 	    
 	}
 

@@ -121,7 +121,7 @@ public class TrainAlarmDataSource {
 		int startHH = cal.get(Calendar.HOUR_OF_DAY);
 		int startMM = cal.get(Calendar.MINUTE);
 		
-		cal.set(Calendar.MINUTE, 10);
+		cal.add(Calendar.MINUTE, 10);
 		int finishHH = cal.get(Calendar.HOUR_OF_DAY);
 		int finishMM = cal.get(Calendar.MINUTE);
 		
