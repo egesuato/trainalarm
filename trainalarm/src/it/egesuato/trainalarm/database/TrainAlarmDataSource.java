@@ -42,6 +42,12 @@ public class TrainAlarmDataSource {
 		dbHelper.close();
 	}
 
+	
+	/**
+	 * Creates or updates a trainAlarm
+	 * @param trainAlarm
+	 * @return
+	 */
 	public TrainAlarm createOrUpdateAlarm(TrainAlarm trainAlarm) {
 		ContentValues values = new ContentValues();
 		values.put(MySQLiteHelper.COLUMN_TRAIN_NUMBER,
@@ -53,17 +59,15 @@ public class TrainAlarmDataSource {
 		values.put(MySQLiteHelper.COLUMN_TRAIN_MM_START_ALARM_AT,
 				trainAlarm.getMinutesStartAlarmAt());
 		
-		long newOrUpdatedId;
+		long newOrUpdatedId = trainAlarm.getId();
 		
 		if (trainAlarm.getId() == -1){
 			newOrUpdatedId = database
 				.insert(MySQLiteHelper.TABLE_NAME, null, values);
 			
 		} else {
-			values.put(MySQLiteHelper.COLUMN_ID, trainAlarm.getId());
-			
-			newOrUpdatedId = database
-					.update(MySQLiteHelper.TABLE_NAME, values,  MySQLiteHelper.COLUMN_ID + " = " +trainAlarm.getId(), null);
+						
+			database.update(MySQLiteHelper.TABLE_NAME, values,  MySQLiteHelper.COLUMN_ID + " = " +trainAlarm.getId(), null);
 		}
 		Cursor cursor = database.query(MySQLiteHelper.TABLE_NAME, allColumns,
 				MySQLiteHelper.COLUMN_ID + " = " + newOrUpdatedId, null, null, null,
@@ -172,7 +176,14 @@ public class TrainAlarmDataSource {
 
 		return trainAlarm;
 	}
-
+	
+	/**
+	 * Returns a {@link TrainAlarm} with the given id, null if not found. 
+	 * 
+	 * @param id to look for.
+	 * @return a {@link TrainAlarm} given a specified id or null
+	 * if no alarm found.
+	 */
 	public TrainAlarm getAlarmById(long id) {
 		Log.d(TAG_LOG, "Get row by id " + id);
 		
@@ -188,7 +199,11 @@ public class TrainAlarmDataSource {
 				null);
 
 		cursor.moveToFirst();
-		alarm = cursorToTrainAlarm(cursor);
+		if (!cursor.isAfterLast()) {
+			alarm = cursorToTrainAlarm(cursor);
+		} else{
+			Log.e(TAG_LOG, "Row by id " + id + " not found");
+		}
 		cursor.close();
 		return alarm;
 		
