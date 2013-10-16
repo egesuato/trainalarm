@@ -23,7 +23,6 @@ import android.util.Log;
 public class AlarmService extends IntentService {
 
 	private static final int ID_NOTIFICATION = 234240;
-	private final static long TO_STOP_AFTER_MS = 5 * 60 * 1000;
 	public static final String TAG = TrainChecker.class.getSimpleName();
 	private TrainChecker checker = new TrainChecker();
 	

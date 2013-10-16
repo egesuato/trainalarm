@@ -20,18 +20,17 @@ public class TrainAlarmDataSource {
 	// Database fields
 	private static final String TAG_LOG = TrainAlarmDataSource.class.getSimpleName();
 	private SQLiteDatabase database;
-	private MySQLiteHelper dbHelper;
+	private SQLiteHelper dbHelper;
 	private String[] allColumns = { 
-			MySQLiteHelper.COLUMN_ID,
-			MySQLiteHelper.COLUMN_TRAIN_NUMBER,
-			MySQLiteHelper.COLUMN_TRAIN_DESCRIPTION,
-			MySQLiteHelper.COLUMN_TRAIN_HH_START_ALARM_AT,
-			MySQLiteHelper.COLUMN_TRAIN_MM_START_ALARM_AT
+			SQLiteHelper.COLUMN_ID,
+			SQLiteHelper.COLUMN_TRAIN_NUMBER,
+			SQLiteHelper.COLUMN_TRAIN_DESCRIPTION,
+			SQLiteHelper.COLUMN_START_ALARM_AT,
 			
 	};
 
 	public TrainAlarmDataSource(Context context) {
-		dbHelper = new MySQLiteHelper(context);
+		dbHelper = new SQLiteHelper(context);
 	}
 
 	public void open() throws SQLException {
@@ -50,27 +49,25 @@ public class TrainAlarmDataSource {
 	 */
 	public TrainAlarm createOrUpdateAlarm(TrainAlarm trainAlarm) {
 		ContentValues values = new ContentValues();
-		values.put(MySQLiteHelper.COLUMN_TRAIN_NUMBER,
+		values.put(SQLiteHelper.COLUMN_TRAIN_NUMBER,
 				trainAlarm.getTrainNumber());
-		values.put(MySQLiteHelper.COLUMN_TRAIN_DESCRIPTION,
+		values.put(SQLiteHelper.COLUMN_TRAIN_DESCRIPTION,
 				trainAlarm.getDescription());
-		values.put(MySQLiteHelper.COLUMN_TRAIN_HH_START_ALARM_AT,
-				trainAlarm.getHoursStartAlarmAt());
-		values.put(MySQLiteHelper.COLUMN_TRAIN_MM_START_ALARM_AT,
-				trainAlarm.getMinutesStartAlarmAt());
+		values.put(SQLiteHelper.COLUMN_START_ALARM_AT,
+				trainAlarm.getStartTime());
 		
 		long newOrUpdatedId = trainAlarm.getId();
 		
 		if (trainAlarm.getId() == -1){
 			newOrUpdatedId = database
-				.insert(MySQLiteHelper.TABLE_NAME, null, values);
+				.insert(SQLiteHelper.TABLE_NAME, null, values);
 			
 		} else {
 						
-			database.update(MySQLiteHelper.TABLE_NAME, values,  MySQLiteHelper.COLUMN_ID + " = " +trainAlarm.getId(), null);
+			database.update(SQLiteHelper.TABLE_NAME, values,  SQLiteHelper.COLUMN_ID + " = " +trainAlarm.getId(), null);
 		}
-		Cursor cursor = database.query(MySQLiteHelper.TABLE_NAME, allColumns,
-				MySQLiteHelper.COLUMN_ID + " = " + newOrUpdatedId, null, null, null,
+		Cursor cursor = database.query(SQLiteHelper.TABLE_NAME, allColumns,
+				SQLiteHelper.COLUMN_ID + " = " + newOrUpdatedId, null, null, null,
 				null);
 		cursor.moveToFirst();
 		TrainAlarm newTrainAlarm = cursorToTrainAlarm(cursor);
@@ -89,7 +86,7 @@ public class TrainAlarmDataSource {
 		List<TrainAlarm> alarms = new ArrayList<TrainAlarm>();
 
 		Cursor cursor = database.query(
-				MySQLiteHelper.TABLE_NAME, 
+				SQLiteHelper.TABLE_NAME, 
 				allColumns,
 				null, 
 				null, 
@@ -122,21 +119,17 @@ public class TrainAlarmDataSource {
 		// looking for all alarms with alarm >= currentTime and alarm <= currentTime + 10 minutes
 		List<TrainAlarm> alarms = new ArrayList<TrainAlarm>();
 		Calendar cal = new GregorianCalendar();
-		int startHH = cal.get(Calendar.HOUR_OF_DAY);
-		int startMM = cal.get(Calendar.MINUTE);
+		long nowInMilliseconds = cal.getTimeInMillis();
 		
 		cal.add(Calendar.MINUTE, 10);
-		int finishHH = cal.get(Calendar.HOUR_OF_DAY);
-		int finishMM = cal.get(Calendar.MINUTE);
+		long endTimeWindow = cal.getTimeInMillis();
 		
 		StringBuffer where = new StringBuffer();
-		addWhere(where, MySQLiteHelper.COLUMN_TRAIN_HH_START_ALARM_AT, ">=", startHH, true);
-		addWhere(where, MySQLiteHelper.COLUMN_TRAIN_HH_START_ALARM_AT, "<=", finishHH, true);
-		addWhere(where, MySQLiteHelper.COLUMN_TRAIN_MM_START_ALARM_AT, ">=", startMM, true);
-		addWhere(where, MySQLiteHelper.COLUMN_TRAIN_MM_START_ALARM_AT, "<=", finishMM, false);
+		addWhere(where, SQLiteHelper.COLUMN_START_ALARM_AT, ">=", nowInMilliseconds, true);
+		addWhere(where, SQLiteHelper.COLUMN_START_ALARM_AT, "<=", endTimeWindow, false);
 
 		Cursor cursor = database.query(
-				MySQLiteHelper.TABLE_NAME, 
+				SQLiteHelper.TABLE_NAME, 
 				allColumns,
 				where.toString() , 
 				null, 
@@ -156,7 +149,7 @@ public class TrainAlarmDataSource {
 	}
 	
 	private void addWhere(StringBuffer where, String columnName,
-			String operator, int value, boolean addAnd) {
+			String operator, long value, boolean addAnd) {
 
 		where.append(columnName);
 		where.append(operator);
@@ -171,8 +164,7 @@ public class TrainAlarmDataSource {
 		trainAlarm.setId(cursor.getLong(0));
 		trainAlarm.setTrainNumber(cursor.getInt(1));
 		trainAlarm.setDescription(cursor.getString(2));
-		trainAlarm.setHoursStartAlarmAt(cursor.getInt(3));
-		trainAlarm.setMinutesStartAlarmAt(cursor.getInt(4));
+		trainAlarm.setStartTime(cursor.getInt(3));
 
 		return trainAlarm;
 	}
@@ -190,9 +182,9 @@ public class TrainAlarmDataSource {
 		TrainAlarm alarm = null;
 		
 		Cursor cursor = database.query(
-				MySQLiteHelper.TABLE_NAME, 
+				SQLiteHelper.TABLE_NAME, 
 				allColumns,
-				MySQLiteHelper.COLUMN_ID + " = " + id, 
+				SQLiteHelper.COLUMN_ID + " = " + id, 
 				null, 
 				null, 
 				null, 
@@ -212,7 +204,7 @@ public class TrainAlarmDataSource {
 	public void deleteById(long id) {
 		Log.d(TAG_LOG, "Delete row by id " + id);
 		
-		database.delete(MySQLiteHelper.TABLE_NAME, MySQLiteHelper.COLUMN_ID
+		database.delete(SQLiteHelper.TABLE_NAME, SQLiteHelper.COLUMN_ID
 				+ " = " + id, null);
 		
 	}

@@ -41,7 +41,7 @@ public class TrainAlarmListAdapter extends ArrayAdapter<TrainAlarm> {
             TextView tt = (TextView) v.findViewById(R.id.txtTitle);
             TextView bt = (TextView) v.findViewById(R.id.txtDescription);
             if (tt != null) {
-                  tt.setText("Alarm at " + o.getDisplayableHoursAndMinutes() +" for train " + String.valueOf(o.getTrainNumber()));                            }
+                  tt.setText(o.toString());                            }
             if(bt != null){
                   bt.setText(o.getDescription());
             }

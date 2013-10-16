@@ -4,6 +4,8 @@ import it.egesuato.trainalarm.database.TrainAlarmDataSource;
 import it.egesuato.trainalarm.model.TrainAlarm;
 
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -56,8 +58,15 @@ public class TrainAlarmActivity extends Activity {
 		    	txtTrainNumber.setText(String.valueOf(alarmById.getTrainNumber()));
 		    	txtTrainDescription.setText(alarmById.getDescription());
 		    	
-		    	timeStartAlarm.setCurrentHour(alarmById.getHoursStartAlarmAt());
-		    	timeStartAlarm.setCurrentMinute(alarmById.getMinutesStartAlarmAt());
+		    	long startTime = alarmById.getStartTime();
+		    	Calendar cal = new GregorianCalendar();
+		    	cal.setTimeInMillis(startTime);
+		    	
+		    	int hh = cal.get(Calendar.HOUR_OF_DAY);
+		    	int mm = cal.get(Calendar.MINUTE);
+		    	
+		    	timeStartAlarm.setCurrentHour(hh);
+		    	timeStartAlarm.setCurrentMinute(mm);
 		    	
 		    	
 	    	} else{
@@ -86,9 +95,17 @@ public class TrainAlarmActivity extends Activity {
     	TrainAlarm trainAlarm = new TrainAlarm();
     	trainAlarm.setDescription(txtTrainDescription.getText().toString());
     	trainAlarm.setTrainNumber(Integer.parseInt(txtTrainNumber.getText().toString()));
-    	trainAlarm.setHoursStartAlarmAt(timeStartAlarm.getCurrentHour());
-    	trainAlarm.setMinutesStartAlarmAt(timeStartAlarm.getCurrentMinute());
     	
+    	Calendar now = new GregorianCalendar();
+    	Calendar time = new GregorianCalendar(
+    			now.get(Calendar.YEAR), 
+    			now.get(Calendar.MONTH), 
+    			now.get(Calendar.DAY_OF_MONTH), 
+    			timeStartAlarm.getCurrentHour(),
+    			timeStartAlarm.getCurrentMinute()
+    			);
+    	
+    	trainAlarm.setStartTime(time.getTimeInMillis());
     	trainAlarm.setId(-1);
     	
     	if (mode.equals(EDIT_MODE)){
