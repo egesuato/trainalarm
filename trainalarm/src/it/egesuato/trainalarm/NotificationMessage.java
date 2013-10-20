@@ -16,12 +16,6 @@ public class NotificationMessage {
 	
 	public String getDetail(){
 		return result;
-		/*
-		if (results.size() == 1){
-			return buff.toString();//"There is one train notification";
-		} else{
-			return "There are " + results.size() + " train notifications";
-		}
-		*/
+
 	}
 }

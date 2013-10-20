@@ -1,6 +1,7 @@
 package it.egesuato.trainalarm;
 
 import it.egesuato.trainalarm.database.TrainAlarmDataSource;
+import it.egesuato.trainalarm.model.TimeStartAlarm;
 import it.egesuato.trainalarm.model.TrainAlarm;
 
 import java.text.SimpleDateFormat;
@@ -59,14 +60,10 @@ public class TrainAlarmActivity extends Activity {
 		    	txtTrainDescription.setText(alarmById.getDescription());
 		    	
 		    	long startTime = alarmById.getStartTime();
-		    	Calendar cal = new GregorianCalendar();
-		    	cal.setTimeInMillis(startTime);
+		    	int[] hhmm = TimeStartAlarm.millisToTime(startTime);
 		    	
-		    	int hh = cal.get(Calendar.HOUR_OF_DAY);
-		    	int mm = cal.get(Calendar.MINUTE);
-		    	
-		    	timeStartAlarm.setCurrentHour(hh);
-		    	timeStartAlarm.setCurrentMinute(mm);
+		    	timeStartAlarm.setCurrentHour(hhmm[0]);
+		    	timeStartAlarm.setCurrentMinute(hhmm[1]);
 		    	
 		    	
 	    	} else{
@@ -96,16 +93,8 @@ public class TrainAlarmActivity extends Activity {
     	trainAlarm.setDescription(txtTrainDescription.getText().toString());
     	trainAlarm.setTrainNumber(Integer.parseInt(txtTrainNumber.getText().toString()));
     	
-    	Calendar now = new GregorianCalendar();
-    	Calendar time = new GregorianCalendar(
-    			now.get(Calendar.YEAR), 
-    			now.get(Calendar.MONTH), 
-    			now.get(Calendar.DAY_OF_MONTH), 
-    			timeStartAlarm.getCurrentHour(),
-    			timeStartAlarm.getCurrentMinute()
-    			);
-    	
-    	trainAlarm.setStartTime(time.getTimeInMillis());
+    	long millis = TimeStartAlarm.timeToMillis(timeStartAlarm.getCurrentHour(), timeStartAlarm.getCurrentMinute());
+		trainAlarm.setStartTime(millis);
     	trainAlarm.setId(-1);
     	
     	if (mode.equals(EDIT_MODE)){

@@ -43,21 +43,17 @@ public class TrainAlarm {
 	}
 
 	public String toString(){
-		Calendar cal = new GregorianCalendar();
-		cal.setTimeInMillis(startTime);
-		
-		int hh = cal.get(Calendar.HOUR_OF_DAY);
-		int mm = cal.get(Calendar.MINUTE);
+		int[] hhmm = TimeStartAlarm.millisToTime(startTime);
 		
 		StringBuffer buff = new StringBuffer();
 		buff.append("Alarm at ");
-		if (hh<=9)
+		if (hhmm[0]<=9)
 			buff.append("0");
-		buff.append(hh);
+		buff.append(hhmm[0]);
 		buff.append(":");
-		if (mm <= 9)
+		if (hhmm[1] <= 9)
 			buff.append(0);
-		buff.append(mm);
+		buff.append(hhmm[1]);
 		
 		buff.append(" for train ");
 		buff.append(getTrainNumber());

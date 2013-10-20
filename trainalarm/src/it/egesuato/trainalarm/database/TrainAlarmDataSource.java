@@ -164,7 +164,7 @@ public class TrainAlarmDataSource {
 		trainAlarm.setId(cursor.getLong(0));
 		trainAlarm.setTrainNumber(cursor.getInt(1));
 		trainAlarm.setDescription(cursor.getString(2));
-		trainAlarm.setStartTime(cursor.getInt(3));
+		trainAlarm.setStartTime(cursor.getLong(3));
 
 		return trainAlarm;
 	}
