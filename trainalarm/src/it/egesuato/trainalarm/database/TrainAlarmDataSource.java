@@ -1,5 +1,6 @@
 package it.egesuato.trainalarm.database;
 
+import it.egesuato.trainalarm.model.TimeStartAlarm;
 import it.egesuato.trainalarm.model.TrainAlarm;
 import android.text.format.Time;
 
@@ -118,11 +119,9 @@ public class TrainAlarmDataSource {
 		
 		// looking for all alarms with alarm >= currentTime and alarm <= currentTime + 10 minutes
 		List<TrainAlarm> alarms = new ArrayList<TrainAlarm>();
-		Calendar cal = new GregorianCalendar();
-		long nowInMilliseconds = cal.getTimeInMillis();
+		long nowInMilliseconds = TimeStartAlarm.nowFromMidnight();
 		
-		cal.add(Calendar.MINUTE, 10);
-		long endTimeWindow = cal.getTimeInMillis();
+		long endTimeWindow = nowInMilliseconds + TimeStartAlarm.timeToMillis(0, minutes); //(minutes * 60 * 1000);
 		
 		StringBuffer where = new StringBuffer();
 		addWhere(where, SQLiteHelper.COLUMN_START_ALARM_AT, ">=", nowInMilliseconds, true);

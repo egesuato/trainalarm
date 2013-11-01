@@ -41,7 +41,8 @@ public class AlarmService extends IntentService {
 		ds.open();
 		List<TrainAlarm> allAlarms = new ArrayList<TrainAlarm>();
 		try {
-			allAlarms = ds.getAllAlarmsToBeChecked(10);
+			int intervalInMinutes = 10;
+			allAlarms = ds.getAllAlarmsToBeChecked(intervalInMinutes);
 			Log.d(TAG, String.format("Found %d trains to check", allAlarms.size()));
 		} finally {
 			ds.close();
@@ -61,11 +62,13 @@ public class AlarmService extends IntentService {
 
 		Intent newIntent = new Intent(this, AlarmService.class);
 		PendingIntent pintent = PendingIntent.getService(this, 0, newIntent, 0);
-
+	    PendingIntent pendingIntent = PendingIntent.getBroadcast(this, i,
+	                intent, PendingIntent.FLAG_CANCEL_CURRENT);
+	     
 		AlarmManager alarm = (AlarmManager)getSystemService(Context.ALARM_SERVICE);
 		// restarting service in 2 minutes
 		alarm.set(AlarmManager.RTC, cal.getTimeInMillis()+ 2*60*1000,  pintent); 
-
+		
 	//	}
 		
 
