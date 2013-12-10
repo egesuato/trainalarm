@@ -47,13 +47,7 @@ public class TrainAlarm {
 		
 		StringBuffer buff = new StringBuffer();
 		buff.append("Alarm at ");
-		if (hhmm[0]<=9)
-			buff.append("0");
-		buff.append(hhmm[0]);
-		buff.append(":");
-		if (hhmm[1] <= 9)
-			buff.append(0);
-		buff.append(hhmm[1]);
+		buff.append(TimeStartAlarm.timeToHumanReadable(hhmm));
 		
 		buff.append(" for train ");
 		buff.append(getTrainNumber());

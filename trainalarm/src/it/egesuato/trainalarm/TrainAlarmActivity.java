@@ -9,6 +9,9 @@ import java.util.Calendar;
 import java.util.GregorianCalendar;
 
 import android.app.Activity;
+import android.app.AlarmManager;
+import android.app.PendingIntent;
+import android.content.Context;
 import android.content.Intent;
 import android.opengl.Visibility;
 import android.os.Bundle;
@@ -105,12 +108,14 @@ public class TrainAlarmActivity extends Activity {
     	TrainAlarmDataSource ds = new TrainAlarmDataSource(getApplicationContext());
     	ds.open();
     	try{
-    		ds.createOrUpdateAlarm(trainAlarm);
+    		trainAlarm = ds.createOrUpdateAlarm(trainAlarm);
     	}finally{
     		ds.close();
     	}
-    	
     	finish();
+    	
+		TimeStartAlarm.startAlarm(trainAlarm, getApplicationContext());
+    	
     }
     
     public void deleteAlarm(View view){
