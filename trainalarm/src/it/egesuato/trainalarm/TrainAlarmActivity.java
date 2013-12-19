@@ -3,23 +3,17 @@ package it.egesuato.trainalarm;
 import it.egesuato.trainalarm.database.TrainAlarmDataSource;
 import it.egesuato.trainalarm.model.TimeStartAlarm;
 import it.egesuato.trainalarm.model.TrainAlarm;
-
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.GregorianCalendar;
-
 import android.app.Activity;
-import android.app.AlarmManager;
-import android.app.PendingIntent;
-import android.content.Context;
-import android.content.Intent;
-import android.opengl.Visibility;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.os.Bundle;
+import android.text.Editable;
 import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.TimePicker;
 
 public class TrainAlarmActivity extends Activity {
@@ -41,11 +35,13 @@ public class TrainAlarmActivity extends Activity {
 		mode = getIntent().getStringExtra(TrainAlarmActivity.MODE);
 		Button btnDelete = (Button) findViewById(R.id.delete);
 		
+		EditText txtTrainNumber = (EditText) findViewById(R.id.trainNumber);
+		txtTrainNumber.requestFocus();
+		
 		TimePicker timeStartAlarm = (TimePicker) findViewById(R.id.startAlarmAt);
 		timeStartAlarm.setIs24HourView(true);
 
 		if (mode.equals(EDIT_MODE)){
-	    	EditText txtTrainNumber = (EditText) findViewById(R.id.trainNumber);
 	    	EditText txtTrainDescription = (EditText) findViewById(R.id.trainDescription);
 			btnDelete.setVisibility(View.VISIBLE);
 			
@@ -94,7 +90,12 @@ public class TrainAlarmActivity extends Activity {
 
     	TrainAlarm trainAlarm = new TrainAlarm();
     	trainAlarm.setDescription(txtTrainDescription.getText().toString());
-    	trainAlarm.setTrainNumber(Integer.parseInt(txtTrainNumber.getText().toString()));
+    	Editable text = txtTrainNumber.getText();
+    	if (text == null || "".equals(text.toString())){
+    		showDialog("Error", "Train number is mandatory", txtTrainNumber);
+    		return;
+    	} 
+		trainAlarm.setTrainNumber(Integer.parseInt(text.toString()));
     	
     	long millis = TimeStartAlarm.timeToMillis(timeStartAlarm.getCurrentHour(), timeStartAlarm.getCurrentMinute());
 		trainAlarm.setStartTime(millis);
@@ -118,7 +119,30 @@ public class TrainAlarmActivity extends Activity {
     	
     }
     
-    public void deleteAlarm(View view){
+    private void showDialog(String title, String message, View txtTrainNumber) {
+    	AlertDialog alertDialog = new AlertDialog.Builder(this).create();
+		// Setting Dialog Title
+		alertDialog.setTitle(title);
+		
+		// Setting Dialog Message
+		alertDialog.setMessage(message);
+		
+		// Setting OK Button
+		alertDialog.setButton("OK", new DialogInterface.OnClickListener() {
+		        public void onClick(DialogInterface dialog, int which) {
+		        // Write your code here to execute after dialog closed
+		        }
+		});
+		
+		// Showing Alert Message
+		alertDialog.show();
+		
+		txtTrainNumber.requestFocus();
+	}
+
+
+
+	public void deleteAlarm(View view){
     	long id = getIntent().getLongExtra("id", -1);
     	TrainAlarmDataSource dataSource = new TrainAlarmDataSource(getApplicationContext());
     	dataSource.open();
