@@ -49,7 +49,7 @@ public class MainActivity extends Activity {
 		});
     	
     	
-    	Intent intent = new Intent(this, StartAlarmService.class);
+    	Intent intent = new Intent(this, Scheduler.class);
     	
     	startService(intent);
     	

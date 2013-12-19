@@ -15,7 +15,13 @@ import android.content.Intent;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.util.Log;
-
+/**
+ * Every alarm in handled in this class. 
+ * Check the train and shows a notification if necessary.
+ * 
+ * @author emanuele
+ *
+ */
 public class AlarmService extends IntentService {
 	public static final String TAG = AlarmService.class.getSimpleName();
 	private TrainChecker checker = new TrainChecker();
